@@ -20,6 +20,12 @@ function App() {
           debug: false
         }
       },
+      scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: '100%',
+        height: '100%'
+      },      
       scene: {
         preload: preload,
         create: create,
@@ -104,34 +110,66 @@ function App() {
 
       // Input
       cursors = this.input.keyboard.createCursorKeys();
-    }
 
+      // Virtual buttons (simple rectangles for touch)
+      const leftButton = this.add.rectangle(100, 500, 100, 100, 0x000000, 0.5).setInteractive();
+      const rightButton = this.add.rectangle(250, 500, 100, 100, 0x000000, 0.5).setInteractive();
+      const jumpButton = this.add.rectangle(700, 500, 100, 100, 0x000000, 0.5).setInteractive();
+
+      // Touch events
+      leftButton.on('pointerdown', () => player.setVelocityX(-160));
+      leftButton.on('pointerup', () => player.setVelocityX(0));
+      rightButton.on('pointerdown', () => player.setVelocityX(160));
+      rightButton.on('pointerup', () => player.setVelocityX(0));
+      jumpButton.on('pointerdown', () => {
+        if (player.body.touching.down) player.setVelocityY(-330);
+      });
+
+
+    }
 
     function update() {
       if (gameOver) return;
 
-
-      // Player movement
+      // Keyboard controls (as before)
       if (cursors.left.isDown) {
         player.setVelocityX(-160);
       } else if (cursors.right.isDown) {
         player.setVelocityX(160);
-      } else {
+      } else if (!this.input.pointer1.isDown) { // Prevent sticking if touch ends
         player.setVelocityX(0);
       }
-
 
       if (cursors.space.isDown && player.body.touching.down) {
         player.setVelocityY(-330);
       }
-
-
-      // Win condition (reach right side with enough score)
-      if (player.x > 750 && score >= 10) {
-        this.add.text(300, 250, 'You Win!', { fontSize: '64px', fill: '#00FF00' });
-        gameOver = true;
-      }
     }
+
+    // function update() {
+    //   if (gameOver) return;
+
+
+    //   // Player movement
+    //   if (cursors.left.isDown) {
+    //     player.setVelocityX(-160);
+    //   } else if (cursors.right.isDown) {
+    //     player.setVelocityX(160);
+    //   } else {
+    //     player.setVelocityX(0);
+    //   }
+
+
+    //   if (cursors.space.isDown && player.body.touching.down) {
+    //     player.setVelocityY(-330);
+    //   }
+
+
+    //   // Win condition (reach right side with enough score)
+    //   if (player.x > 750 && score >= 10) {
+    //     this.add.text(300, 250, 'You Win!', { fontSize: '64px', fill: '#00FF00' });
+    //     gameOver = true;
+    //   }
+    // }
 
 
     function collectCoin(player, coin) {
