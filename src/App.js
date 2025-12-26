@@ -111,19 +111,44 @@ function App() {
       // Input
       cursors = this.input.keyboard.createCursorKeys();
 
-      // Virtual buttons (simple rectangles for touch)
-      const leftButton = this.add.rectangle(100, 500, 100, 100, 0x000000, 0.5).setInteractive();
-      const rightButton = this.add.rectangle(250, 500, 100, 100, 0x000000, 0.5).setInteractive();
-      const jumpButton = this.add.rectangle(700, 500, 100, 100, 0x000000, 0.5).setInteractive();
+      // Detect if mobile/touch device
+      const isMobile = !this.sys.game.device.os.desktop || this.sys.game.device.input.touch;
 
-      // Touch events
-      leftButton.on('pointerdown', () => player.setVelocityX(-160));
-      leftButton.on('pointerup', () => player.setVelocityX(0));
-      rightButton.on('pointerdown', () => player.setVelocityX(160));
-      rightButton.on('pointerup', () => player.setVelocityX(0));
-      jumpButton.on('pointerdown', () => {
-        if (player.body.touching.down) player.setVelocityY(-330);
-      });
+      if (isMobile) {
+        // Virtual buttons with relative positioning
+        const buttonY = this.scale.height - 100; // Bottom of screen
+        const leftButton = this.add.rectangle(100, buttonY, 100, 100, 0x000000, 0.5).setInteractive().setDepth(10); // Depth to ensure on top
+        const rightButton = this.add.rectangle(250, buttonY, 100, 100, 0x000000, 0.5).setInteractive().setDepth(10);
+        const jumpButton = this.add.rectangle(this.scale.width - 100, buttonY, 100, 100, 0x000000, 0.5).setInteractive().setDepth(10);
+
+        // Touch events (hold for continuous movement)
+        this.input.on('pointerdown', (pointer) => {
+          if (leftButton.getBounds().contains(pointer.x, pointer.y)) {
+            player.setVelocityX(-160);
+          } else if (rightButton.getBounds().contains(pointer.x, pointer.y)) {
+            player.setVelocityX(160);
+          } else if (jumpButton.getBounds().contains(pointer.x, pointer.y) && player.body.touching.down) {
+            player.setVelocityY(-330);
+          }
+        });
+
+        this.input.on('pointerup', () => {
+          player.setVelocityX(0); // Stop horizontal movement on release
+        });
+      }      
+      // // Virtual buttons (simple rectangles for touch)
+      // const leftButton = this.add.rectangle(100, 500, 100, 100, 0x000000, 0.5).setInteractive();
+      // const rightButton = this.add.rectangle(250, 500, 100, 100, 0x000000, 0.5).setInteractive();
+      // const jumpButton = this.add.rectangle(700, 500, 100, 100, 0x000000, 0.5).setInteractive();
+
+      // // Touch events
+      // leftButton.on('pointerdown', () => player.setVelocityX(-160));
+      // leftButton.on('pointerup', () => player.setVelocityX(0));
+      // rightButton.on('pointerdown', () => player.setVelocityX(160));
+      // rightButton.on('pointerup', () => player.setVelocityX(0));
+      // jumpButton.on('pointerdown', () => {
+      //   if (player.body.touching.down) player.setVelocityY(-330);
+      // });
 
 
     }
